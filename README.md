@@ -9,10 +9,16 @@ The main goal of this project is to demonstrate autonomous control, sensor-based
 
 Key Features:
 
-Fully autonomous robot (no manual or keyboard control)
+Fully autonomous robot (no keyboard control)
+
 Custom-designed virtual environment
+
 Custom-built robot model
+
 LIDAR sensor integration
+
 Real-time obstacle detection and avoidance
+
 Simulation using Gazebo
+
 Intelligent navigation system
