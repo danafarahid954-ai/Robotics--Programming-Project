@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>second_package</name>  <!-- CHANGE THIS -->
+  <version>0.0.1</version>
+  <description>A simple robot simulation package for a ROS 2 project</description>
+  <maintainer email="student@example.com">Student</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- Node deps -->
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+
+  <!-- Gazebo + robot description -->
+  <depend>gazebo_ros</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>xacro</depend>
+
+  <!-- Optional, useful when debugging models -->
+  <depend>joint_state_publisher</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

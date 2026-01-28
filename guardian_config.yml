@@ -1,0 +1,107 @@
+# Guardian Robot Configuration
+robot:
+  base_radius: 0.20
+  base_height: 0.15
+  wheel_radius: 0.08
+  wheel_width: 0.04
+  mass: 4.0
+  wheel_separation: 0.44
+  wheel_diameter: 0.16
+
+lidar:
+  update_rate: 10
+  samples: 360
+  min_angle: -3.14159
+  max_angle: 3.14159
+  min_range: 0.12
+  max_range: 12.0
+  range_resolution: 0.03
+  frame_name: "lidar_link"
+  topic_name: "scan"
+  radiation_type: "infra_red"
+  visualize: true
+  display_ray: true
+
+laser_visual:
+  ambient: [0.1, 0.1, 0.3, 0.3]
+  diffuse: [0.2, 0.2, 0.5, 0.4]
+  specular: [0.1, 0.1, 0.2, 0.2]
+  emissive: [0.1, 0.1, 0.4, 0.5]
+
+navigation:
+  safe_distance: 1.0
+  critical_distance: 0.6
+  very_critical_distance: 0.4
+  forward_speed: 0.5
+  turn_speed: 1.2
+  avoid_speed: 0.3
+  reverse_speed: 0.4
+  forward_duration: 3.0
+  turn_duration: 1.5
+  emergency_duration: 1.0
+  sectors:
+    front:
+      start_angle: 0
+      end_angle: 45
+    right:
+      start_angle: 45
+      end_angle: 135
+    left:
+      start_angle: 225
+      end_angle: 315
+    front_left:
+      start_angle: 315
+      end_angle: 360
+
+control:
+  max_wheel_torque: 20
+  max_wheel_velocity: 20.0
+  publish_odom: true
+  publish_odom_tf: true
+  cmd_vel_topic: "cmd_vel"
+  odom_topic: "odom"
+  odom_frame: "odom"
+  base_frame: "base_link"
+
+world:
+  room_size: 20.0
+  ground_color: [0.6, 0.6, 0.6, 1.0]
+  obstacles:
+    - name: "red_obstacle"
+      type: "cylinder"
+      position: [3.0, 3.0, 0.3]
+      size: [0.3, 0.6]
+      color: [0.8, 0.2, 0.2, 1.0]
+    - name: "orange_cone1"
+      type: "cylinder"
+      position: [5.0, 5.0, 0.3]
+      size: [0.2, 0.6]
+      color: [1.0, 0.5, 0.0, 1.0]
+    - name: "wood_box1"
+      type: "box"
+      position: [7.0, 2.0, 0.4]
+      size: [0.8, 0.8, 0.8]
+      color: [0.55, 0.27, 0.07, 1.0]
+
+ros:
+  use_sim_time: true
+  qos_depth: 10
+  update_rate: 10.0
+
+debug:
+  enable_logging: true
+  log_level: "INFO"
+  publish_debug_topics: false
+  visualize_laser: true
+
+states:
+  - "forward"
+  - "turn"
+  - "emergency"
+  - "avoidance"
+  - "recovery"
+
+performance:
+  max_step_size: 0.01
+  real_time_factor: 1.0
+  real_time_update_rate: 100

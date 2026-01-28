@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="guardian_robot">
+
+  <xacro:property name="base_radius" value="0.20"/>
+  <xacro:property name="base_height" value="0.15"/>
+  <xacro:property name="wheel_radius" value="0.08"/>
+  <xacro:property name="wheel_width" value="0.04"/>
+
+ 
+  <link name="base_link">
+    <visual>
+      <geometry><cylinder radius="${base_radius}" length="${base_height}"/></geometry>
+      <material name="red"><color rgba="0.8 0.1 0.1 1.0"/></material>
+    </visual>
+    <collision><geometry><cylinder radius="${base_radius}" length="${base_height}"/></geometry></collision>
+    <inertial>
+      <mass value="4.0"/>
+      <inertia ixx="0.08" iyy="0.08" izz="0.08" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+ 
+  <xacro:macro name="wheel" params="prefix side">
+    <link name="${prefix}_wheel">
+      <visual>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="gray"><color rgba="0.3 0.3 0.3 1"/></material>
+      </visual>
+      <collision><geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry></collision>
+      <inertial>
+        <mass value="0.8"/>
+        <inertia ixx="0.005" iyy="0.005" izz="0.005" ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="0 ${side*(base_radius+0.02)} ${-base_height/2 + wheel_radius}" rpy="0 1.57 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+
+    <gazebo reference="${prefix}_wheel">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:wheel prefix="left" side="1"/>
+  <xacro:wheel prefix="right" side="-1"/>
+
+  <!-- Sensor tower -->
+  <link name="sensor_link">
+    <visual>
+      <geometry><box size="0.08 0.08 0.12"/></geometry>
+      <material name="blue"><color rgba="0.1 0.1 0.8 1.0"/></material>
+    </visual>
+    <collision><geometry><box size="0.08 0.08 0.12"/></geometry></collision>
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <joint name="sensor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_link"/>
+    <origin xyz="0 0 ${base_height/2 + 0.06}" rpy="0 0 0"/>
+  </joint>
+
+ 
+  <link name="lidar_link">
+    <visual>
+      <geometry><cylinder radius="0.05" length="0.08"/></geometry>
+      <material name="blue_glass"><color rgba="0.1 0.1 0.8 0.6"/></material>
+    </visual>
+    <collision><geometry><cylinder radius="0.05" length="0.08"/></geometry></collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="sensor_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <command_topic>cmd_vel</command_topic>
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>${2*(base_radius+0.02)}</wheel_separation>
+      <wheel_diameter>${2*wheel_radius}</wheel_diameter>
+      <max_wheel_torque>20</max_wheel_torque>
+      <max_wheel_velocity>20.0</max_wheel_velocity>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+    </plugin>
+  </gazebo>
+
+ 
+  <gazebo reference="lidar_link">
+    <sensor type="ray" name="lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>12.0</max>
+          <resolution>0.03</resolution>
+        </range>
+        <!-- Softer laser visualization -->
+        <display_ray>true</display_ray>
+      </ray>
+      <plugin name="gazebo_ros_lidar" filename="libgazebo_ros_ray_sensor.so">
+        <topicName>scan</topicName>
+        <frameName>lidar_link</frameName>
+        <radiation_type>infra_red</radiation_type>
+      </plugin>
+    </sensor>
+    
+    <!-- Softer blue laser material with reduced intensity -->
+    <material>
+      <ambient>0.1 0.1 0.3 0.3</ambient>
+      <diffuse>0.2 0.2 0.5 0.4</diffuse>
+      <specular>0.1 0.1 0.2 0.2</specular>
+      <emissive>0.1 0.1 0.4 0.5</emissive>
+    </material>
+  </gazebo>
+
+  <!-- Additional settings to reduce laser intensity -->
+  <gazebo reference="lidar_link">
+    <pose>0 0 0 0 0 0</pose>
+    <turnGravityOff>false</turnGravityOff>
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+</robot>
